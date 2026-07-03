@@ -6,8 +6,7 @@ import { AnswerMap, createAnswersPdf } from "@/lib/pdf";
 export const runtime = "nodejs";
 
 const RECIPIENT_EMAILS = [
-  "destinatario1@exemplo.com",
-  "destinatario2@exemplo.com"
+  "sac@datarestore.com.br"
 ];
 
 function sanitizeValue(value: unknown) {
