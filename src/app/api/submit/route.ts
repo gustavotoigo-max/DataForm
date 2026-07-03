@@ -5,14 +5,30 @@ import { AnswerMap, createAnswersPdf } from "@/lib/pdf";
 
 export const runtime = "nodejs";
 
-const RECIPIENT_EMAILS = [
-  "laboratorio@datarestore.com.br"
-];
-
 function sanitizeValue(value: unknown) {
   if (typeof value === "boolean") return value;
   if (typeof value !== "string") return "";
   return value.replace(/[<>]/g, "").trim().slice(0, 3000);
+}
+
+function getRecipientEmails() {
+  const value = process.env.EMAIL_TO;
+
+  if (!value) {
+    throw new Error("Variável de ambiente ausente: EMAIL_TO");
+  }
+
+  return value
+    .split(",")
+    .map((email) => email.trim())
+    .filter(Boolean);
+}
+
+function buildEmailSubject(answers: AnswerMap) {
+  const baseSubject = process.env.EMAIL_SUBJECT || "Novo formulário recebido";
+  const contact = String(answers.contato || "").trim();
+
+  return contact ? `${baseSubject} - ${contact}` : baseSubject;
 }
 
 function shouldValidateExtraField(parent: FormQuestion, field: ExtraField, answers: AnswerMap) {
@@ -91,8 +107,8 @@ export async function POST(request: NextRequest) {
     const pdf = await createAnswersPdf(validation.answers);
 
     await sendFormEmail({
-      to: RECIPIENT_EMAILS,
-      subject: process.env.EMAIL_SUBJECT || "Novo formulário recebido",
+      to: getRecipientEmails(),
+      subject: buildEmailSubject(validation.answers),
       text: "Um novo formulário foi enviado. O PDF com perguntas e respostas está anexado.",
       pdf
     });
