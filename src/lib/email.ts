@@ -16,10 +16,18 @@ function requiredEnv(name: string) {
 }
 
 export async function sendFormEmail({ to, subject, text, pdf }: SendEmailParams) {
+  const host = requiredEnv("SMTP_HOST");
+
   const transporter = nodemailer.createTransport({
-    host: requiredEnv("SMTP_HOST"),
+    host,
     port: Number(process.env.SMTP_PORT || 587),
     secure: process.env.SMTP_SECURE === "true",
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
+    tls: {
+      servername: host
+    },
     auth: {
       user: requiredEnv("SMTP_USER"),
       pass: requiredEnv("SMTP_PASS")
