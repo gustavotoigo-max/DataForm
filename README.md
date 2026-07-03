@@ -1,6 +1,6 @@
-# Formulario com PDF por e-mail
+# Formulário com PDF por e-mail
 
-Site de uma pagina com formulario responsivo. Ao enviar, o backend gera um PDF com perguntas e respostas e manda o arquivo para uma lista fixa de destinatarios cadastrada no codigo.
+Site de uma página com formulário responsivo. Ao enviar, o backend gera um PDF com perguntas e respostas e manda o arquivo para uma lista fixa de destinatários cadastrada no código.
 
 ## Como rodar localmente
 
@@ -16,7 +16,7 @@ Acesse `http://localhost:3000`.
 
 Edite `src/config/formQuestions.ts`. Para adicionar uma pergunta, inclua um novo item no array `formQuestions`.
 
-## Onde editar destinatarios
+## Onde editar destinatários
 
 Edite `RECIPIENT_EMAILS` em `src/app/api/submit/route.ts`.
 
@@ -32,4 +32,4 @@ Cadastre no painel do Vercel:
 - `EMAIL_FROM`
 - `EMAIL_SUBJECT` opcional
 
-Esses valores ficam apenas no backend. O navegador nunca recebe a lista de destinatarios nem as credenciais SMTP.
+Esses valores ficam apenas no backend. O navegador nunca recebe a lista de destinatários nem as credenciais SMTP.

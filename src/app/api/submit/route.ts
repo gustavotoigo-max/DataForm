@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { formQuestions } from "@/config/formQuestions";
+import { ExtraField, FormQuestion, formQuestions } from "@/config/formQuestions";
 import { sendFormEmail } from "@/lib/email";
 import { AnswerMap, createAnswersPdf } from "@/lib/pdf";
 
@@ -16,9 +16,34 @@ function sanitizeValue(value: unknown) {
   return value.replace(/[<>]/g, "").trim().slice(0, 3000);
 }
 
+function shouldValidateExtraField(parent: FormQuestion, field: ExtraField, answers: AnswerMap) {
+  return !field.showWhen || answers[parent.id] === field.showWhen;
+}
+
+function validateQuestion(question: FormQuestion, value: string | boolean) {
+  if (question.required) {
+    const missing = question.type === "checkbox" ? value !== true : !String(value).trim();
+    if (missing) {
+      return `Campo obrigatório: ${question.label}.`;
+    }
+  }
+
+  if (typeof value === "string" && question.maxLength && value.length > question.maxLength) {
+    return `O campo "${question.label}" deve ter no máximo ${question.maxLength} caracteres.`;
+  }
+
+  if ((question.type === "select" || question.type === "radio") && value) {
+    if (!question.options?.includes(String(value))) {
+      return `Opção inválida para: ${question.label}.`;
+    }
+  }
+
+  return null;
+}
+
 function validateAnswers(rawAnswers: unknown) {
   if (!rawAnswers || typeof rawAnswers !== "object" || Array.isArray(rawAnswers)) {
-    return { error: "Dados invalidos." };
+    return { error: "Dados inválidos." };
   }
 
   const source = rawAnswers as Record<string, unknown>;
@@ -26,21 +51,30 @@ function validateAnswers(rawAnswers: unknown) {
 
   for (const question of formQuestions) {
     const value = sanitizeValue(source[question.id]);
+    const error = validateQuestion(question, value);
 
-    if (question.required) {
-      const missing = question.type === "checkbox" ? value !== true : !String(value).trim();
-      if (missing) {
-        return { error: `Campo obrigatorio: ${question.label}.` };
-      }
-    }
-
-    if ((question.type === "select" || question.type === "radio") && value) {
-      if (!question.options?.includes(String(value))) {
-        return { error: `Opcao invalida para: ${question.label}.` };
-      }
+    if (error) {
+      return { error };
     }
 
     answers[question.id] = value;
+
+    for (const field of question.extraFields || []) {
+      const extraValue = sanitizeValue(source[field.id]);
+
+      if (!shouldValidateExtraField(question, field, answers)) {
+        answers[field.id] = "";
+        continue;
+      }
+
+      const extraError = validateQuestion(field, extraValue);
+
+      if (extraError) {
+        return { error: extraError };
+      }
+
+      answers[field.id] = extraValue;
+    }
   }
 
   return { answers };
@@ -59,20 +93,20 @@ export async function POST(request: NextRequest) {
 
     await sendFormEmail({
       to: RECIPIENT_EMAILS,
-      subject: process.env.EMAIL_SUBJECT || "Novo formulario recebido",
-      text: "Um novo formulario foi enviado. O PDF com perguntas e respostas esta anexado.",
+      subject: process.env.EMAIL_SUBJECT || "Novo formulário recebido",
+      text: "Um novo formulário foi enviado. O PDF com perguntas e respostas está anexado.",
       pdf
     });
 
     return NextResponse.json({
-      message: "Formulario enviado com sucesso."
+      message: "Formulário enviado com sucesso."
     });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
       {
         message:
-          "Nao foi possivel enviar o formulario agora. Verifique a configuracao de e-mail."
+          "Não foi possível enviar o formulário agora. Verifique a configuração de e-mail."
       },
       { status: 500 }
     );

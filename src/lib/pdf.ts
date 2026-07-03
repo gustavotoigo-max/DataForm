@@ -1,8 +1,38 @@
 import PDFDocument from "pdfkit";
-import { formQuestions } from "@/config/formQuestions";
+import { ExtraField, FormQuestion, formQuestions } from "@/config/formQuestions";
 
 type AnswerValue = string | boolean;
 export type AnswerMap = Record<string, AnswerValue>;
+
+function formatAnswer(answer: AnswerValue) {
+  if (typeof answer === "boolean") {
+    return answer ? "Sim" : "Não";
+  }
+
+  return answer || "Não informado";
+}
+
+function shouldPrintExtraField(parent: FormQuestion, field: ExtraField, answers: AnswerMap) {
+  if (field.showWhen && answers[parent.id] !== field.showWhen) {
+    return false;
+  }
+
+  return field.required || Boolean(String(answers[field.id] || "").trim());
+}
+
+function printAnswer(doc: PDFKit.PDFDocument, label: string, answer: AnswerValue) {
+  doc
+    .fontSize(11)
+    .fillColor("#4b5563")
+    .text(label, { continued: false });
+
+  doc
+    .fontSize(13)
+    .fillColor("#111827")
+    .text(String(formatAnswer(answer)), {
+      width: 500
+    });
+}
 
 export async function createAnswersPdf(answers: AnswerMap) {
   return new Promise<Buffer>((resolve, reject) => {
@@ -16,7 +46,7 @@ export async function createAnswersPdf(answers: AnswerMap) {
     doc
       .fontSize(20)
       .fillColor("#101b2b")
-      .text("Formulario recebido", { align: "left" });
+      .text("Formulário recebido", { align: "left" });
 
     doc.moveDown(0.5);
     doc
@@ -27,25 +57,20 @@ export async function createAnswersPdf(answers: AnswerMap) {
     doc.moveDown(1.5);
 
     formQuestions.forEach((question, index) => {
-      const rawAnswer = answers[question.id];
-      const answer =
-        typeof rawAnswer === "boolean" ? (rawAnswer ? "Sim" : "Nao") : rawAnswer || "Nao informado";
-
       if (index > 0) {
         doc.moveDown(0.8);
       }
 
-      doc
-        .fontSize(11)
-        .fillColor("#4b5563")
-        .text(question.label, { continued: false });
+      printAnswer(doc, question.label, answers[question.id]);
 
-      doc
-        .fontSize(13)
-        .fillColor("#111827")
-        .text(String(answer), {
-          width: 500
-        });
+      question.extraFields?.forEach((field) => {
+        if (!shouldPrintExtraField(question, field, answers)) {
+          return;
+        }
+
+        doc.moveDown(0.45);
+        printAnswer(doc, field.label, answers[field.id]);
+      });
     });
 
     doc.end();
