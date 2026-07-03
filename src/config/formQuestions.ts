@@ -48,7 +48,7 @@ export const formQuestions: FormQuestion[] = [
         id: "discosNaoEnviados",
         label: "Informe quais discos, ou quantos discos não foram enviados",
         type: "textarea",
-        required: true,
+        required: false,
         showWhen: "Sim",
         placeholder: "Ex: Disco 0, Disco 4, etc."
       }
@@ -67,7 +67,7 @@ export const formQuestions: FormQuestion[] = [
         id: "quantidadeHotSpare",
         label: "Quantos discos de Hot-spare existiam?",
         type: "text",
-        required: true,
+        required: false,
         showWhen: "Sim",
         placeholder: "Ex: 1, 2, 3..."
       }
@@ -78,7 +78,7 @@ export const formQuestions: FormQuestion[] = [
     label:
       "3) Favor detalhar como ocorreu o problema no RAID e quais ações foram tomadas.",
     type: "textarea",
-    required: true,
+    required: false,
     placeholder: "Digite sua resposta",
     helperText:
       "Exemplo: O servidor apresentou falha no dia 13 e, após isso, tentamos remontar o RAID com o próprio departamento de TI, mas sempre parava. Solicitamos então visita do suporte da DELL e recebemos visita do técnico da Dell no dia 14, quando este substituiu um dos discos com defeito e tentou remontar o RAID com sistema de rebuild, sem sucesso. Após isso, procuramos a Datarestore."
@@ -96,7 +96,7 @@ export const formQuestions: FormQuestion[] = [
         id: "detalheTentativaRecuperacao",
         label: "Detalhe comandos, programas e procedimentos utilizados",
         type: "textarea",
-        required: true,
+        required: false,
         showWhen: "Sim",
         placeholder:
           "Informe se houve algum procedimento físico, como troca de placa ou abertura de HD. Informe também softwares utilizados, onde os dados foram salvos e se houve gravação no próprio RAID."
@@ -125,7 +125,7 @@ export const formQuestions: FormQuestion[] = [
     label:
       "6) Liste os caminhos dos arquivos que deseja recuperar, pode também listar os tipos de arquivos. .mdb, .gdb etc.",
     type: "textarea",
-    required: true,
+    required: false,
     placeholder: "Digite sua resposta",
     helperText:
       "Liste pelo menos 5 caminhos ou nomes. Quanto mais detalhado, melhor. Se for banco de dados, informe o nome completo, a versão, o tamanho aproximado e a última data de modificação.\n\nExemplos:\nD:\\Users\\Server\\Documentos\\Planilhas do Financeiro\\Fluxo de caixa.xls\nD:\\Users\\Server\\Documentos\\RH\\currículos a avaliar.doc\nD:\\Users\\Server\\Desktop\\Contratos\\Contrato de expansão.pdf\nD:\\Users\\Server\\Imagens\\Minhas Fotos\\*.jpg\nTodos os e-mails do Microsoft Outlook do usuário \"Server\""

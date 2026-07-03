@@ -230,10 +230,11 @@ export function DynamicForm() {
 
       <div className="form-actions">
         <p className={`status-message status-${submitState}`} aria-live="polite">
-          {message}
+          {isSubmitting ? "Gerando PDF e enviando e-mail..." : message}
         </p>
         <button type="submit" disabled={isSubmitting || missingRequired}>
-          {isSubmitting ? "Enviando..." : "Enviar formulário"}
+          {isSubmitting && <span className="button-spinner" aria-hidden="true" />}
+          <span>{isSubmitting ? "Enviando..." : "Enviar formulário"}</span>
         </button>
       </div>
     </form>
