@@ -38,6 +38,31 @@ export const formQuestions: FormQuestion[] = [
       "Informe uma identificação para este formulário. Pode ser nome, e-mail, telefone, número da OS ou qualquer referência curta."
   },
   {
+    id: "modeloServidor",
+    label: "Modelo/marca do servidor",
+    type: "text",
+    required: false,
+    placeholder: "Ex: Dell PowerEdge R740, HP ProLiant DL380..."
+  },
+  {
+    id: "tipoRaid",
+    label: "Tipo de RAID",
+    type: "radio",
+    required: true,
+    options: ["RAID 0", "RAID 1", "RAID 5", "RAID 6", "RAID 10", "RAID 50", "OUTRO"],
+    extraFields: [
+      {
+        id: "tipoRaidOutro",
+        label: "Qual tipo de RAID?",
+        type: "text",
+        required: false,
+        showWhen: "OUTRO",
+        placeholder: "Digite o tipo",
+        maxLength: 20
+      }
+    ]
+  },
+  {
     id: "discoRemovido",
     label: "1) Algum disco foi removido do RAID array e/ou não foi enviado?",
     type: "radio",
