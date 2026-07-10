@@ -32,6 +32,7 @@ function buildEmailSubject(answers: AnswerMap) {
 }
 
 function shouldValidateExtraField(parent: FormQuestion, field: ExtraField, answers: AnswerMap) {
+  if (field.showWhenAnswered) return Boolean(String(answers[parent.id]).trim());
   return !field.showWhen || answers[parent.id] === field.showWhen;
 }
 
@@ -45,6 +46,19 @@ function validateQuestion(question: FormQuestion, value: string | boolean) {
 
   if (typeof value === "string" && question.maxLength && value.length > question.maxLength) {
     return `O campo "${question.label}" deve ter no máximo ${question.maxLength} caracteres.`;
+  }
+
+  if (question.type === "number" && value !== "") {
+    const number = Number(value);
+    if (!Number.isInteger(number)) {
+      return `O campo "${question.label}" deve conter apenas um número inteiro.`;
+    }
+    if (question.min !== undefined && number < question.min) {
+      return `O campo "${question.label}" deve ser no mínimo ${question.min}.`;
+    }
+    if (question.max !== undefined && number > question.max) {
+      return `O campo "${question.label}" deve ser no máximo ${question.max}.`;
+    }
   }
 
   if ((question.type === "select" || question.type === "radio") && value) {
