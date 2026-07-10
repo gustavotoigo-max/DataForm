@@ -15,6 +15,8 @@ const initialValues = allQuestions.reduce<FormValues>((values, question) => {
 
 function isExtraFieldVisible(parent: FormQuestion, field: FormQuestion, values: FormValues) {
   const showWhen = "showWhen" in field ? field.showWhen : undefined;
+  const showWhenAnswered = "showWhenAnswered" in field && field.showWhenAnswered;
+  if (showWhenAnswered) return Boolean(String(values[parent.id]).trim());
   return !showWhen || values[parent.id] === showWhen;
 }
 
@@ -96,7 +98,9 @@ export function DynamicForm() {
       name: question.id,
       required: question.required,
       disabled: fieldDisabled,
-      maxLength: question.maxLength
+      maxLength: question.maxLength,
+      min: question.min,
+      max: question.max
     };
 
     return (
@@ -185,14 +189,22 @@ export function DynamicForm() {
           </label>
         )}
 
-        {["text", "email", "tel"].includes(question.type) && (
+        {["text", "email", "tel", "number"].includes(question.type) && (
           <>
             <input
               {...commonProps}
               type={question.type}
+              inputMode={question.type === "number" ? "numeric" : undefined}
               placeholder={question.placeholder}
               value={String(values[question.id])}
-              onChange={(event) => updateValue(question.id, event.target.value)}
+              onChange={(event) =>
+                updateValue(
+                  question.id,
+                  question.type === "number"
+                    ? event.target.value.replace(/\D/g, "")
+                    : event.target.value
+                )
+              }
             />
             {question.maxLength && (
               <span className="character-count">

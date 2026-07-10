@@ -2,6 +2,7 @@ export type QuestionType =
   | "text"
   | "email"
   | "tel"
+  | "number"
   | "textarea"
   | "select"
   | "radio"
@@ -15,12 +16,15 @@ export type FormQuestion = {
   placeholder?: string;
   helperText?: string;
   maxLength?: number;
+  min?: number;
+  max?: number;
   options?: string[];
   extraFields?: ExtraField[];
 };
 
 export type ExtraField = FormQuestion & {
   showWhen?: string;
+  showWhenAnswered?: boolean;
 };
 
 export const formTitle = "Formulário de Diagnóstico";
@@ -51,6 +55,16 @@ export const formQuestions: FormQuestion[] = [
     required: true,
     options: ["RAID 0", "RAID 1", "RAID 5", "RAID 6", "RAID 10", "RAID 50", "OUTRO"],
     extraFields: [
+      {
+        id: "quantidadeDiscos",
+        label: "Número de discos",
+        type: "number",
+        required: true,
+        showWhenAnswered: true,
+        min: 2,
+        max: 100,
+        placeholder: ""
+      },
       {
         id: "tipoRaidOutro",
         label: "Qual tipo de RAID?",
